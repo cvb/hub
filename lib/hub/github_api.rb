@@ -107,6 +107,15 @@ module Hub
         [api_host(project.host), project.owner, project.name], params
 
       res.error! unless res.success?
+
+      if options[:issueref] && (i = (/:i([0-9]+)/.match params[:head]))
+        issue = i[1]
+        r = post "https://%s/repos/%s/%s/issues/%s/comments" %
+          [api_host(project.host), project.owner, project.name, issue],
+        { "body" => "#{res.data['html_url']} #{res.data['title']}" }
+        puts "Can't add reference to #{issue}: #{r.error!}"
+      end
+
       res.data
     end
 
